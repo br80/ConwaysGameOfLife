@@ -4,13 +4,21 @@ using UnityEngine;
 
 public class Cell : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+  public bool alive;
+
+  public void Kill() {
+    if (alive) {
+      alive = false;
+      gameObject.GetComponent<MeshRenderer>().material.color = Color.white;
+    }
+  }
+
+  public void Revive() {
+    if (!alive) {
+      alive = false;
+      gameObject.GetComponent<MeshRenderer>().material.color = Color.black;
+    }
+  }
+
+
 }
