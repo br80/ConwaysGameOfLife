@@ -80,7 +80,7 @@ public class MainManager : MonoBehaviour {
         }
       }
     }
-	}
+  }
 
   private void tickGrid() {
     int total = 0;
