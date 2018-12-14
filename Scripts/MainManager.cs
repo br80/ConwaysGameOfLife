@@ -16,6 +16,8 @@ public class MainManager : MonoBehaviour {
   private bool[,] currentGrid;
   private bool[,] otherGrid;
 
+  private float lastChange = 0;
+
 	// Use this for initialization
 	void Start () {
     gridWidth = 15;
@@ -44,13 +46,23 @@ public class MainManager : MonoBehaviour {
 
     for (int i = 0 ; i < gridWidth ; i++) {
       for (int j = 0 ; j < gridHeight ; j++) {
-        if (Random.value > 0.5f)  {
+        // if (Random.value > 0.5f)  {
+        //   grid0[i,j] = true;
+        //   grid1[i,j] = true;
+        // }
+
+        if ((i == 5 && j == 5) ||
+            (i == 6 && j == 4) ||
+            (i == 4 && j == 3) ||
+            (i == 5 && j == 3) ||
+            (i == 6 && j == 3)) {
           grid0[i,j] = true;
+          grid1[i,j] = true;
         }
       }
     }
 
-    grid1 = grid0;
+
     updateCells();
 	}
 
@@ -71,11 +83,26 @@ public class MainManager : MonoBehaviour {
         total = 0;
 
         if (j < gridHeight - 1 && otherGrid[i,j+1]) total++;
+
         if(j > 0 && otherGrid[i,j-1]) total++;
+
         if(i < gridWidth - 1 && otherGrid[i+1,j]) total++;
+
         if(i > 0 && otherGrid[i-1,j]) total++;
 
-        if (otherGrid[i,j]) {  // Cell is alive
+        if (j < gridHeight - 1 && otherGrid[i,j+1]) total++;
+
+
+        if (j < gridHeight - 1 && i < gridWidth - 1 && otherGrid[i+1,j+1]) total++;
+
+        if (j > 0 && i < gridWidth - 1 && otherGrid[i+1,j-1]) total++;
+
+        if (j < gridHeight - 1 && i > 0 && otherGrid[i-1,j+1]) total++;
+
+        if (j > 0 && i > 0 && otherGrid[i-1,j-1]) total++;
+
+
+        if (currentGrid[i,j]) {  // Cell is alive
           if (total == 2 || total == 3) {
             currentGrid[i,j] = true;
           } else {
@@ -105,13 +132,13 @@ public class MainManager : MonoBehaviour {
     }
   }
 
-  public bool GetLifeValue(int i, int j) {
-    return currentGrid[i,j];
-  }
-
   void Update() {
-    tickGrid();
-    updateCells();
+    lastChange += Time.deltaTime;
+    if (lastChange > 1) {
+      lastChange -= 1;
+      tickGrid();
+      updateCells();
+    }
   }
 
 }

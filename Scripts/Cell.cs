@@ -15,7 +15,7 @@ public class Cell : MonoBehaviour {
 
   public void Revive() {
     if (!alive) {
-      alive = false;
+      alive = true;
       gameObject.GetComponent<MeshRenderer>().material.color = Color.black;
     }
   }
