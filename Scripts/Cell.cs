@@ -4,21 +4,25 @@ using UnityEngine;
 
 public class Cell : MonoBehaviour {
 
-  public bool alive;
+  MainManager mainManager;
 
-  public void Kill() {
-    if (alive) {
-      alive = false;
-      gameObject.GetComponent<MeshRenderer>().enabled = false;
-      // gameObject.GetComponent<MeshRenderer>().material.color = Color.white;
-    }
+  private int i;
+  private int j;
+  private int k;
+
+  public void Initialize(MainManager setMainManager, int setI, int setJ, int setK) {
+    mainManager = setMainManager;
+
+    i = setI;
+    j = setJ;
+    k = setK;
   }
 
-  public void Revive() {
-    if (!alive) {
-      alive = true;
+  void Update() {
+    if (mainManager.GetLife(i, j, k)) {
       gameObject.GetComponent<MeshRenderer>().enabled = true;
-      // gameObject.GetComponent<MeshRenderer>().material.color = Color.black;
+    } else {
+      gameObject.GetComponent<MeshRenderer>().enabled = false;
     }
   }
 

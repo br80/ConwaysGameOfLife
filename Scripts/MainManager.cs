@@ -1,64 +1,88 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text;
 
 public class MainManager : MonoBehaviour {
 
   private int gridWidth;
   private int gridHeight;
+  private int gridDepth;
 
-  private Cell[,] cells;
+  private Cell[,,] cells;
 
-  private bool[,] grid0;
-  private bool[,] grid1;
+  private bool[,,] grid0;
+  private bool[,,] grid1;
 
   private bool currentGridIs0;
-  private bool[,] currentGrid;
-  private bool[,] otherGrid;
+  private bool[,,] currentGrid;
+  private bool[,,] otherGrid;
 
   private float lastChange = 0;
 
+  private float tickLength = 0f;
+  private float currentTime = 0;
+
+  private bool hasStarted = false;
+
+  private GameObject lookAt;
+
 	// Use this for initialization
 	void Start () {
-    gridWidth = 100;
-    gridHeight = 100;
 
-    cells = new Cell[gridWidth, gridHeight];
+    int dimension = 30;
 
-    grid0 = new bool[gridWidth, gridHeight];
-    grid1 = new bool[gridWidth, gridHeight];
+    gridWidth = dimension;
+    gridHeight = dimension;
+    gridDepth = dimension;
+
+    cells = new Cell[gridWidth, gridHeight, gridDepth];
+
+    grid0 = new bool[gridWidth, gridHeight, gridDepth+1];
+    grid1 = new bool[gridWidth, gridHeight, gridDepth+1];
+
+    grid0[0,0,gridDepth] = false;
+    grid1[0,0,gridDepth] = true;
 
     currentGridIs0 = true;
     currentGrid = grid0;
+    otherGrid = grid1;
 
-    transform.position = new Vector3((gridWidth - 1) / 2f, (gridHeight - 1) / 2f, -10);
+    transform.position = new Vector3((gridWidth - 1) / 2f + gridWidth, (gridHeight - 1) / 2f + gridHeight, -(gridDepth - 1));
     gameObject.GetComponent<Camera>().orthographicSize = Mathf.Max(gridWidth, gridHeight) / 2f;
 
-    for (int i = 0 ; i < gridWidth ; i++) {
-      for (int j = 0 ; j < gridHeight ; j++) {
-        GameObject cell = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cell.name = "Cell: " + i + ", " + j;
-        cell.transform.position = new Vector3(i, j, 0);
-        cell.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
-        cell.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/UnlitMaterial");
-        cells[i,j] = cell.AddComponent<Cell>();
-
-        Destroy(cell.GetComponent<BoxCollider>());
-      }
-    }
+    lookAt = new GameObject();
+    lookAt.transform.position = new Vector3((gridWidth - 1) / 2f, (gridHeight - 1) / 2f, (gridDepth - 1) / 2f);
 
     for (int i = 0 ; i < gridWidth ; i++) {
       for (int j = 0 ; j < gridHeight ; j++) {
-        if (Random.value > 0.5f)  {
-          grid0[i,j] = true;
-          grid1[i,j] = true;
+        for (int k = 0 ; k < gridDepth ; k++) {
+          GameObject cell = GameObject.CreatePrimitive(PrimitiveType.Cube);
+          cell.name = "Cell: " + i + ", " + j + ", " + k;
+          cell.transform.position = new Vector3(i, j, k);
+          cell.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+          cell.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/UnlitMaterial");
+          cell.GetComponent<MeshRenderer>().material.SetColor ("_Color", new Color((1f * i) / gridWidth, (1f * j) / gridHeight, (1f * k) / gridDepth ));
+          cells[i,j,k] = cell.AddComponent<Cell>();
+          cell.GetComponent<Cell>().Initialize(this, i, j, k);
+
+          Destroy(cell.GetComponent<BoxCollider>());
         }
+      }
+    }
 
+    for (int i = 0 ; i < gridWidth ; i++) {
+      for (int j = 0 ; j < gridHeight ; j++) {
+        for (int k = 0 ; k < gridDepth ; k++) {
+          if (Random.value > 0.5f)  {
+            currentGrid[i,j,k] = true;
+            otherGrid[i,j,k] = true;
+          }
+        }
       }
     }
 
 
-    updateCells();
 	}
 
   private void tickGrid() {
@@ -75,53 +99,86 @@ public class MainManager : MonoBehaviour {
 
     for (int i = 0 ; i < gridWidth ; i++) {
       for (int j = 0 ; j < gridHeight ; j++) {
-        total = 0;
+        for (int k = 0 ; k < gridDepth ; k++) {
+          total = 0;
 
-        if (j < gridHeight - 1 && otherGrid[i,j+1]) total++;
+          if (j < gridHeight - 1 && otherGrid[i,j+1,k]) total++;
+          if(j > 0 && otherGrid[i,j-1,k]) total++;
+          if(i < gridWidth - 1 && otherGrid[i+1,j,k]) total++;
+          if(i > 0 && otherGrid[i-1,j,k]) total++;
 
-        if(j > 0 && otherGrid[i,j-1]) total++;
+          if (j < gridHeight - 1 && i < gridWidth - 1 && otherGrid[i+1,j+1,k]) total++;
+          if (j > 0 && i < gridWidth - 1 && otherGrid[i+1,j-1,k]) total++;
+          if (j < gridHeight - 1 && i > 0 && otherGrid[i-1,j+1,k]) total++;
+          if (j > 0 && i > 0 && otherGrid[i-1,j-1,k]) total++;
 
-        if(i < gridWidth - 1 && otherGrid[i+1,j]) total++;
+          if (k > 0) {
+            if (j < gridHeight - 1 && otherGrid[i,j+1,k-1]) total++;
+            if(j > 0 && otherGrid[i,j-1,k-1]) total++;
+            if(i < gridWidth - 1 && otherGrid[i+1,j,k-1]) total++;
+            if(i > 0 && otherGrid[i-1,j,k-1]) total++;
 
-        if(i > 0 && otherGrid[i-1,j]) total++;
+            if (j < gridHeight - 1 && i < gridWidth - 1 && otherGrid[i+1,j+1,k-1]) total++;
+            if (j > 0 && i < gridWidth - 1 && otherGrid[i+1,j-1,k-1]) total++;
+            if (j < gridHeight - 1 && i > 0 && otherGrid[i-1,j+1,k-1]) total++;
+            if (j > 0 && i > 0 && otherGrid[i-1,j-1,k-1]) total++;
 
+            if (j > 0 && i > 0 && otherGrid[i,j,k-1]) total++;
+          }
 
-        if (j < gridHeight - 1 && i < gridWidth - 1 && otherGrid[i+1,j+1]) total++;
+          if (k < gridDepth - 1) {
+            if (j < gridHeight - 1 && otherGrid[i,j+1,k+1]) total++;
+            if(j > 0 && otherGrid[i,j-1,k+1]) total++;
+            if(i < gridWidth - 1 && otherGrid[i+1,j,k+1]) total++;
+            if(i > 0 && otherGrid[i-1,j,k+1]) total++;
 
-        if (j > 0 && i < gridWidth - 1 && otherGrid[i+1,j-1]) total++;
+            if (j < gridHeight - 1 && i < gridWidth - 1 && otherGrid[i+1,j+1,k+1]) total++;
+            if (j > 0 && i < gridWidth - 1 && otherGrid[i+1,j-1,k+1]) total++;
+            if (j < gridHeight - 1 && i > 0 && otherGrid[i-1,j+1,k+1]) total++;
+            if (j > 0 && i > 0 && otherGrid[i-1,j-1,k+1]) total++;
 
-        if (j < gridHeight - 1 && i > 0 && otherGrid[i-1,j+1]) total++;
+            if (j > 0 && i > 0 && otherGrid[i,j,k+1]) total++;
+          }
 
-        if (j > 0 && i > 0 && otherGrid[i-1,j-1]) total++;
+          if (otherGrid[i,j,k]) {  // Cell is alive
+            currentGrid[i,j,k] = total == 2 || total == 3;
+          } else {
+            currentGrid[i,j,k] = total == 3;
+          }
 
-
-        if (otherGrid[i,j]) {  // Cell is alive
-          currentGrid[i,j] = total == 2 || total == 3;
-        } else {
-          currentGrid[i,j] = total == 3;
         }
-
       }
     }
   }
 
-  private void updateCells() {
-    for (int i = 0 ; i < gridWidth ; i++) {
-      for (int j = 0 ; j < gridHeight ; j++) {
-        if (currentGrid[i,j]) {
-          cells[i,j].Revive();
-        } else {
-          cells[i,j].Kill();
-        }
-
-
-      }
-    }
+  public bool GetLife(int i, int j, int k) {
+    return currentGrid[i,j,k];
   }
 
-  void Update() {
-    tickGrid();
-    updateCells();
+  // void Update() {
+  //   if (Input.GetMouseButtonDown(0)) {
+  //     Debug.Log("CLICK");
+  //     tickGrid();
+  //   }
+  // }
+
+  void FixedUpdate() {
+
+    if (hasStarted) {
+      currentTime += Time.deltaTime;
+      if (currentTime > tickLength) {
+        currentTime -= tickLength;
+        tickGrid();
+      }
+    } else {
+      if (Input.GetKeyDown(KeyCode.Return)) {
+        hasStarted = true;
+      }
+    }
+
+    transform.LookAt(lookAt.transform);
+    transform.Translate(Vector3.right * Time.deltaTime * 50f);
+
 
   }
 
