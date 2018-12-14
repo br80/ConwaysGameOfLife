@@ -9,14 +9,16 @@ public class Cell : MonoBehaviour {
   public void Kill() {
     if (alive) {
       alive = false;
-      gameObject.GetComponent<MeshRenderer>().material.color = Color.white;
+      gameObject.GetComponent<MeshRenderer>().enabled = false;
+      // gameObject.GetComponent<MeshRenderer>().material.color = Color.white;
     }
   }
 
   public void Revive() {
     if (!alive) {
       alive = true;
-      gameObject.GetComponent<MeshRenderer>().material.color = Color.black;
+      gameObject.GetComponent<MeshRenderer>().enabled = true;
+      // gameObject.GetComponent<MeshRenderer>().material.color = Color.black;
     }
   }
 

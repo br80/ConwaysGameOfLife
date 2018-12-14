@@ -39,8 +39,11 @@ public class MainManager : MonoBehaviour {
         GameObject cell = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cell.name = "Cell: " + i + ", " + j;
         cell.transform.position = new Vector3(i, j, 0);
+        cell.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
         cell.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/UnlitMaterial");
         cells[i,j] = cell.AddComponent<Cell>();
+
+        Destroy(cell.GetComponent<BoxCollider>());
       }
     }
 
