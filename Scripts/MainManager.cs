@@ -20,7 +20,7 @@ public class MainManager : MonoBehaviour {
 
   private float lastChange = 0;
 
-  private float tickLength = 0f;
+  private float tickLength = 0.2f;
   private float currentTime = 0;
 
   private bool hasStarted = false;
@@ -30,7 +30,7 @@ public class MainManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-    int dimension = 30;
+    int dimension = 50;
 
     gridWidth = dimension;
     gridHeight = dimension;
