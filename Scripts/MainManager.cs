@@ -23,6 +23,8 @@ public class MainManager : MonoBehaviour {
   private float tickLength = 0.2f;
   private float currentTime = 0;
 
+  private float startingDensity = 0.5f;
+
   private bool hasStarted = false;
 
   private GameObject lookAt;
@@ -38,11 +40,8 @@ public class MainManager : MonoBehaviour {
 
     cells = new Cell[gridWidth, gridHeight, gridDepth];
 
-    grid0 = new bool[gridWidth, gridHeight, gridDepth+1];
-    grid1 = new bool[gridWidth, gridHeight, gridDepth+1];
-
-    grid0[0,0,gridDepth] = false;
-    grid1[0,0,gridDepth] = true;
+    grid0 = new bool[gridWidth, gridHeight, gridDepth];
+    grid1 = new bool[gridWidth, gridHeight, gridDepth];
 
     currentGridIs0 = true;
     currentGrid = grid0;
@@ -74,7 +73,7 @@ public class MainManager : MonoBehaviour {
     for (int i = 0 ; i < gridWidth ; i++) {
       for (int j = 0 ; j < gridHeight ; j++) {
         for (int k = 0 ; k < gridDepth ; k++) {
-          if (Random.value > 0.5f)  {
+          if (Random.value > startingDensity)  {
             currentGrid[i,j,k] = true;
             otherGrid[i,j,k] = true;
           }
