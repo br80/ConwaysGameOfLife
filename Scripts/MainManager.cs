@@ -20,8 +20,8 @@ public class MainManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-    gridWidth = 15;
-    gridHeight = 15;
+    gridWidth = 100;
+    gridHeight = 100;
 
     cells = new Cell[gridWidth, gridHeight];
 
@@ -46,19 +46,11 @@ public class MainManager : MonoBehaviour {
 
     for (int i = 0 ; i < gridWidth ; i++) {
       for (int j = 0 ; j < gridHeight ; j++) {
-        // if (Random.value > 0.5f)  {
-        //   grid0[i,j] = true;
-        //   grid1[i,j] = true;
-        // }
-
-        if ((i == 5 && j == 5) ||
-            (i == 6 && j == 4) ||
-            (i == 4 && j == 3) ||
-            (i == 5 && j == 3) ||
-            (i == 6 && j == 3)) {
+        if (Random.value > 0.5f)  {
           grid0[i,j] = true;
           grid1[i,j] = true;
         }
+
       }
     }
 
@@ -90,8 +82,6 @@ public class MainManager : MonoBehaviour {
 
         if(i > 0 && otherGrid[i-1,j]) total++;
 
-        if (j < gridHeight - 1 && otherGrid[i,j+1]) total++;
-
 
         if (j < gridHeight - 1 && i < gridWidth - 1 && otherGrid[i+1,j+1]) total++;
 
@@ -102,18 +92,10 @@ public class MainManager : MonoBehaviour {
         if (j > 0 && i > 0 && otherGrid[i-1,j-1]) total++;
 
 
-        if (currentGrid[i,j]) {  // Cell is alive
-          if (total == 2 || total == 3) {
-            currentGrid[i,j] = true;
-          } else {
-            currentGrid[i,j] = false;
-          }
+        if (otherGrid[i,j]) {  // Cell is alive
+          currentGrid[i,j] = total == 2 || total == 3;
         } else {
-          if (total == 3) {
-            currentGrid[i,j] = true;
-          } else {
-            currentGrid[i,j] = false;
-          }
+          currentGrid[i,j] = total == 3;
         }
 
       }
@@ -128,17 +110,16 @@ public class MainManager : MonoBehaviour {
         } else {
           cells[i,j].Kill();
         }
+
+
       }
     }
   }
 
   void Update() {
-    lastChange += Time.deltaTime;
-    if (lastChange > 1) {
-      lastChange -= 1;
-      tickGrid();
-      updateCells();
-    }
+    tickGrid();
+    updateCells();
+
   }
 
 }
