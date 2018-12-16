@@ -20,7 +20,7 @@ public class MainManager : MonoBehaviour {
 
   private float lastChange = 0;
 
-  private float tickLength = 0.2f;
+  private float tickLength = 0.02f;
   private float currentTime = 0;
 
   private float startingDensity = 0.5f;
@@ -35,7 +35,7 @@ public class MainManager : MonoBehaviour {
     int dimension = 50;
 
     gridWidth = dimension;
-    gridHeight = dimension;
+    gridHeight = 1;
     gridDepth = dimension;
 
     cells = new Cell[gridWidth, gridHeight, gridDepth];
@@ -120,7 +120,7 @@ public class MainManager : MonoBehaviour {
             if (j < gridHeight - 1 && i > 0 && otherGrid[i-1,j+1,k-1]) total++;
             if (j > 0 && i > 0 && otherGrid[i-1,j-1,k-1]) total++;
 
-            if (j > 0 && i > 0 && otherGrid[i,j,k-1]) total++;
+            if (otherGrid[i,j,k-1]) total++;
           }
 
           if (k < gridDepth - 1) {
@@ -134,7 +134,7 @@ public class MainManager : MonoBehaviour {
             if (j < gridHeight - 1 && i > 0 && otherGrid[i-1,j+1,k+1]) total++;
             if (j > 0 && i > 0 && otherGrid[i-1,j-1,k+1]) total++;
 
-            if (j > 0 && i > 0 && otherGrid[i,j,k+1]) total++;
+            if (otherGrid[i,j,k+1]) total++;
           }
 
           if (otherGrid[i,j,k]) {  // Cell is alive
