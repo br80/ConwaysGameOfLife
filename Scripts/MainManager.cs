@@ -35,7 +35,7 @@ public class MainManager : MonoBehaviour {
     int dimension = 50;
 
     gridWidth = dimension;
-    gridHeight = 1;
+    gridHeight = dimension;
     gridDepth = dimension;
 
     cells = new Cell[gridWidth, gridHeight, gridDepth];
